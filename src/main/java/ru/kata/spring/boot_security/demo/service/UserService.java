@@ -13,10 +13,9 @@ public interface UserService extends UserDetailsService {
     User getUserWithRoles(Long id);
     List<User> getAllUsers();
     Set<Role> getAllRoles();
-    Role getRoleById(Long id); // Добавляем этот метод
+    Role getRoleById(Long id);
     void saveUser(User user);
     void updateUser(User user);
     void deleteUser(Long id);
     User getCurrentUser();
-    List<User> getUsersByRole(String roleName);
 }

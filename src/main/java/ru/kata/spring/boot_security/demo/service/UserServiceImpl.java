@@ -15,7 +15,6 @@ import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -54,19 +53,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserWithRoles(Long id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.getRoles().size(); // Инициируем загрузку ролей
-                    return user;
-                })
-                .orElse(null);
+        return userRepository.findByIdWithRoles(id);
     }
 
     @Override
     public List<User> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        users.forEach(user -> user.getRoles().size()); // Инициируем загрузку ролей
-        return users;
+        return userRepository.findAllWithRoles();
     }
 
     @Override
@@ -76,9 +68,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
@@ -127,13 +116,5 @@ public class UserServiceImpl implements UserService {
             return userRepository.findByUsername(username);
         }
         return null;
-    }
-
-    @Override
-    public List<User> getUsersByRole(String roleName) {
-        return userRepository.findAll().stream()
-                .filter(user -> user.getRoles().stream()
-                        .anyMatch(role -> role.getName().equals(roleName)))
-                .collect(Collectors.toList());
     }
 }
