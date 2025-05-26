@@ -9,4 +9,14 @@ public class MainController {
     public String redirectToLogin() {
         return "redirect:/login";
     }
+
+    @GetMapping("/admin")
+    public String adminPage() {
+        return "admin";
+    }
+
+    @GetMapping("/user")
+    public String userPage() {
+        return "user";
+    }
 }

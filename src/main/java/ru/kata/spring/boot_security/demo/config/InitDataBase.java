@@ -10,6 +10,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
@@ -30,12 +31,22 @@ public class InitDataBase implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (roleRepository.count() == 0) {
-            Role adminRole = new Role("ROLE_ADMIN");
-            Role userRole = new Role("ROLE_USER");
-            roleRepository.save(adminRole);
-            roleRepository.save(userRole);
+        // Создаем роли, если их нет
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        Role userRole = roleRepository.findByName("ROLE_USER");
 
+        if (adminRole == null) {
+            adminRole = new Role("ROLE_ADMIN");
+            roleRepository.save(adminRole);
+        }
+
+        if (userRole == null) {
+            userRole = new Role("ROLE_USER");
+            roleRepository.save(userRole);
+        }
+
+        // Проверяем и создаем администратора
+        if (userRepository.findByUsername("admin") == null) {
             User admin = new User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
@@ -43,9 +54,17 @@ public class InitDataBase implements CommandLineRunner {
             admin.setLastName("Adminov");
             admin.setEmail("admin@mail.ru");
             admin.setAge(35);
-            admin.setRoles(Set.of(adminRole, userRole));
-            userRepository.save(admin);
 
+            Set<Role> adminRoles = new HashSet<>();
+            adminRoles.add(adminRole);
+            adminRoles.add(userRole);
+            admin.setRoles(adminRoles);
+
+            userRepository.save(admin);
+        }
+
+        // Проверяем и создаем обычного пользователя
+        if (userRepository.findByUsername("user") == null) {
             User user = new User();
             user.setUsername("user");
             user.setPassword(passwordEncoder.encode("user"));
@@ -53,7 +72,11 @@ public class InitDataBase implements CommandLineRunner {
             user.setLastName("Userov");
             user.setEmail("user@mail.ru");
             user.setAge(30);
-            user.setRoles(Set.of(userRole));
+
+            Set<Role> userRoles = new HashSet<>();
+            userRoles.add(userRole);
+            user.setRoles(userRoles);
+
             userRepository.save(user);
         }
     }

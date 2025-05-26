@@ -15,6 +15,7 @@ import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -68,6 +69,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
+        if (user.getRoles() != null) {
+            Set<Role> managedRoles = user.getRoles().stream()
+                    .map(role -> roleRepository.findById(role.getId()).orElseThrow())
+                    .collect(Collectors.toSet());
+            user.setRoles(managedRoles);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
@@ -88,7 +95,13 @@ public class UserServiceImpl implements UserService {
         existingUser.setLastName(updatedUser.getLastName());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setAge(updatedUser.getAge());
-        existingUser.setRoles(updatedUser.getRoles());
+
+        if (updatedUser.getRoles() != null) {
+            Set<Role> managedRoles = updatedUser.getRoles().stream()
+                    .map(role -> roleRepository.findById(role.getId()).orElseThrow())
+                    .collect(Collectors.toSet());
+            existingUser.setRoles(managedRoles);
+        }
 
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
@@ -99,7 +112,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findByIdWithRoles(id);
+        if (user == null) {
+            throw new RuntimeException("User not found with id: " + id);
+        }
+
+        // Удаляем связи в users_roles
+        user.getRoles().clear();
+        userRepository.saveAndFlush(user);
+
+        // Удаляем самого пользователя
+        userRepository.delete(user);
     }
 
     @Override
