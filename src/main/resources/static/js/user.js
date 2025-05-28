@@ -37,6 +37,9 @@ function loadUserInfo() {
                 </form>
             `;
 
+            // Настраиваем обработчик logout после обновления DOM
+            setupLogoutHandler();
+
             // Показываем/скрываем ссылку на админку
             const isAdmin = user.roles.some(role => role.name === 'ROLE_ADMIN');
             document.getElementById('adminLinkItem').style.display = isAdmin ? 'block' : 'none';
@@ -48,11 +51,18 @@ function loadUserInfo() {
 }
 
 function setupEventListeners() {
-    document.getElementById('logoutForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetch('/logout', { method: 'POST' })
-            .then(() => window.location.href = '/login');
-    });
+    // Перенесено в loadUserInfo, так как форма создается динамически
+}
+
+function setupLogoutHandler() {
+    const logoutForm = document.getElementById('logoutForm');
+    if (logoutForm) {
+        logoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/login');
+        });
+    }
 }
 
 function showError(message) {

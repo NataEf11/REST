@@ -27,6 +27,9 @@
     .role-badge {
       margin-right: 5px;
     }
+    .content-container {
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -34,10 +37,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#">User Panel</a>
     <div class="navbar-text text-light ms-auto" id="currentUserInfo">
-      <span id="usernameDisplay"></span>
-      <form class="d-inline" id="logoutForm">
-        <button type="submit" class="btn btn-link text-light">Logout</button>
-      </form>
+      Loading user info...
     </div>
   </div>
 </nav>
@@ -47,7 +47,7 @@
     <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
-          <li class="nav-item" id="adminLinkItem">
+          <li class="nav-item" id="adminLinkItem" style="display: none;">
             <a class="nav-link" href="/admin">Admin panel</a>
           </li>
           <li class="nav-item">
@@ -57,7 +57,7 @@
       </div>
     </nav>
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-container">
       <div class="d-flex justify-content-between mb-3">
         <h2>My Profile</h2>
       </div>
